@@ -48,6 +48,18 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    // --- Interface & Design ---
+    implementation("androidx.compose.material3:material3")
+    implementation("io.coil-kt:coil-compose:2.5.0") // Pour l'affichage des photos [cite: 29]
+
+    // --- Backend (Supabase) ---
+    implementation("io.github.jan-tennert.supabase:postgrest-kt:2.0.0") // Pour la table parking_sessions
+    implementation("io.github.jan-tennert.supabase:storage-kt:2.0.0")   // Pour l'upload des images
+
+    // --- Architecture & Background ---
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0") // MVVM [cite: 26]
+    implementation("androidx.work:work-runtime-ktx:2.9.0") // Pour les alertes 24h [cite: 31]
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
