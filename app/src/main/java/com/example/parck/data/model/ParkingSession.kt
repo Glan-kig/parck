@@ -1,10 +1,12 @@
 package com.example.parck.data.model
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import kotlinx.serialization.Serializable
 import java.time.Instant
 
 @Serializable
-data class ParkingSession(
+data class ParkingSession @RequiresApi(Build.VERSION_CODES.O) constructor(
     val id: String? = null,
     val plateNumber: String,
     val vehicleType: VehicleType,
