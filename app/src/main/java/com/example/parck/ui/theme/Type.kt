@@ -6,14 +6,13 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import com.example.parck.R
 
-// Set of Material typography styles to start with
-
+// Utilise FontFamily.Monospace (ou importe Space Mono si tu l'as ajouté en ressource)
 val PlateTypography = TextStyle(
-    fontFamily = FontFamily(Font(R.font.space_mono_regular)),
-    fontWeight = FontWeight.Bold,
-    fontSize = 20.sp
+    fontFamily = FontFamily.Monospace,
+    fontWeight = FontWeight.ExtraBold,
+    fontSize = 22.sp,
+    letterSpacing = 2.sp // Pour imiter le look d'une vraie plaque
 )
 
 val Typography = Typography(
