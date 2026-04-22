@@ -1,24 +1,16 @@
 package com.example.parck.data.model
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import kotlinx.serialization.Serializable
 import java.time.Instant
 
 @Serializable
-data class ParkingSession @RequiresApi(Build.VERSION_CODES.O) constructor(
-    val id: String? = null,
-    val plateNumber: String,
-    val vehicleType: VehicleType,
-    val photoUrl: String? = null,
-    val entryTime: Long = Instant.now().toEpochMilli(), // Utilisation de java.time.Instant
-    val exitTime: Long? = null,
-    val totalAmount: Double = 0.0,
-    val isPaid: Boolean = false
+data class ParkingSession(
+    val id: String? = null, // UUID généré par Supabase
+    val plateNumber: String, // Plaque d'immatriculation
+    val vehicleType: VehicleType, // Type avec tarif spécifique
+    val photoUrl: String? = null, // URL de l'image dans le Bucket
+    val entryTime: Long = Instant.now().toEpochMilli(), // Capturée automatiquement
+    val exitTime: Long? = null, // Enregistré lors de la sortie
+    val totalAmount: Double = 0.0, // Frais calculés
+    val isPaid: Boolean = false // État de la session
 )
-
-enum class VehicleType(val hourlyRate: Double) {
-    MOTO(1.0),    // Tarif horaire différent
-    VOITURE(2.5),
-    CAMION(5.0)
-}
