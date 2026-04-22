@@ -58,7 +58,11 @@ dependencies {
 
     // --- Architecture & Background ---
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0") // MVVM [cite: 26]
-    implementation("androidx.work:work-runtime-ktx:2.9.0") // Pour les alertes 24h [cite: 31]
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
+    implementation(libs.androidx.compose.runtime)
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.compose.material3.common)
+    implementation(libs.androidx.navigation.compose) // Pour les alertes 24h [cite: 31]
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
