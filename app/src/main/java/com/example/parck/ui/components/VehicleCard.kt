@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.ui.res.painterResource
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -24,6 +25,8 @@ import com.example.parck.data.model.ParkingSession
 import com.example.parck.ui.theme.AccessGreen
 import com.example.parck.ui.theme.BlueElectric
 import com.example.parck.ui.theme.PlateTypography
+import com.example.parck.utils.toCurrencyString
+import com.example.parck.utils.toFormattedTime
 
 @Composable
 fun VehicleCard(
@@ -53,11 +56,11 @@ fun VehicleCard(
                     style = PlateTypography, // Défini à l'étape 5
                     color = Color.White
                 )
-                Text("Entrée: ${formatTime(session.entryTime)}", style = MaterialTheme.typography.bodySmall)
+                Text(text = "Entrée à : ${session.entryTime.toFormattedTime()}", style = MaterialTheme.typography.bodySmall)
 
                 // PRIX EN TEMPS RÉEL
                 Text(
-                    text = "${String.format("%.2f", currentAmount)} €",
+                    text = "${currentAmount.toCurrencyString()} ",
                     color = AccessGreen,
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
@@ -66,7 +69,12 @@ fun VehicleCard(
 
             // Bouton de sortie
             IconButton(onClick = onExitClick) {
-                Icon(Icons.Default.ExitToApp, contentDescription = "Sortie", tint = BlueElectric)
+                Icon(
+                    painter = painterResource(id = android.R.drawable.ic_media_play), // Icône "Play" orientée vers la droite (symbolise le départ)
+                    contentDescription = "Sortie",
+                    tint = BlueElectric,
+                    modifier = Modifier.size(28.dp)
+                )
             }
         }
     }
