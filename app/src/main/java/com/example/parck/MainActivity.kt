@@ -9,10 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,7 +26,6 @@ import com.example.parck.ui.components.VehicleCard
 import com.example.parck.ui.screens.DashboardScreen
 import com.example.parck.ui.screens.EntryFormScreen
 import com.example.parck.ui.screens.ExitScreen
-import com.example.parck.ui.theme.ParckTheme
 import com.example.parck.ui.theme.ParkSmartTheme
 import com.example.parck.ui.viewmodel.ParkingViewModel
 import com.example.parck.worker.ParkingAlertWorker
@@ -40,67 +36,16 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 1. Initialisation de la couche de données
         val repository = ParkingRepositoryImpl()
         val viewModel = ParkingViewModel(repository)
 
         setContent {
-            // 2. Application du thème "Urbain" défini à l'étape 5
             ParkSmartTheme {
-                val navController = rememberNavController()
-
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    // 3. Gestion de la Navigation
-                    NavHost(
-                        navController = navController,
-                        startDestination = "dashboard"
-                    ) {
-                        // Écran 1 : Dashboard (Liste des véhicules)
-                        composable("dashboard") {
-                            DashboardScreen(
-                                viewModel = viewModel,
-                                onNavigateToEntry = { navController.navigate("entry") },
-                                onNavigateToExit = { session: ParkingSession ->
-                                    // On passe la session à l'écran de sortie
-                                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                                        key = "session",
-                                        value = session
-                                    )
-                                    navController.navigate("exit")
-                                }
-                            )
-                        }
-
-                        // Écran 2 : Formulaire d'entrée (Ajout)
-                        composable("entry") {
-                            EntryFormScreen(
-                                viewModel = viewModel,
-                                onEntrySaved = { navController.popBackStack() }
-                            )
-                        }
-
-                        // Écran 3 : Validation de sortie (Paiement)
-                        composable("exit") {
-                            val session = navController.previousBackStackEntry
-                                ?.savedStateHandle?.get<ParkingSession>("session")
-
-                            session?.let {
-                                ExitScreen(
-                                    session = it,
-                                    viewModel = viewModel,
-                                    onExitConfirmed = { navController.popBackStack() }
-                                )
-                            }
-                        }
-                    }
-                }
+                // Appel de la fonction principale
+                ParkSmartApp(viewModel)
             }
         }
 
-        // 4. Lancement du WorkManager (Alerte 24h)
         setupWorkManager()
     }
 
@@ -114,50 +59,47 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+// --- FONCTION DE NAVIGATION PRINCIPALE ---
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+fun ParkSmartApp(viewModel: ParkingViewModel) {
+    val navController = rememberNavController()
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun DashboardPreview() {
-    // 1. On applique ton thème personnalisé (Step 5)
-    ParkSmartTheme {
-        // 2. On crée une fausse liste de sessions pour le visuel
-        val fakeSessions = listOf(
-            ParkingSession(
-                id = "1",
-                plateNumber = "GK-123-LU",
-                vehicleType = VehicleType.VOITURE,
-                entryTime = System.currentTimeMillis() - 3600000, // Il y a 1h
-                photoUrl = null
-            ),
-            ParkingSession(
-                id = "2",
-                plateNumber = "MOTO-77",
-                vehicleType = VehicleType.MOTO,
-                entryTime = System.currentTimeMillis() - 7200000, // Il y a 2h
-                photoUrl = null
-            )
-        )
-
-        // 3. On affiche uniquement l'UI (sans logique réseau)
-        Scaffold(
-            topBar = {
-                SmallTopAppBar(title = { Text("ParkSmart - Aperçu") })
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        NavHost(
+            navController = navController,
+            startDestination = "dashboard"
+        ) {
+            composable("dashboard") {
+                DashboardScreen(
+                    viewModel = viewModel,
+                    onNavigateToEntry = { navController.navigate("entry") },
+                    onNavigateToExit = { session ->
+                        navController.currentBackStackEntry?.savedStateHandle?.set("session", session)
+                        navController.navigate("exit")
+                    }
+                )
             }
-        ) { padding ->
-            LazyColumn(modifier = Modifier.padding(padding)) {
-                items(fakeSessions) { session ->
-                    VehicleCard(
-                        session = session,
-                        currentAmount = 5.0, // Montant fictif pour l'aperçu
-                        onExitClick = {},
-                        formatTime = { /* Mock */ }
+
+            composable("entry") {
+                EntryFormScreen(
+                    viewModel = viewModel,
+                    onEntrySaved = { navController.popBackStack() }
+                )
+            }
+
+            composable("exit") {
+                val session = navController.previousBackStackEntry
+                    ?.savedStateHandle?.get<ParkingSession>("session")
+
+                session?.let {
+                    ExitScreen(
+                        session = it,
+                        viewModel = viewModel,
+                        onExitConfirmed = { navController.popBackStack() }
                     )
                 }
             }
@@ -165,7 +107,33 @@ fun DashboardPreview() {
     }
 }
 
+// --- PREVIEW POUR LE DESIGN ---
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun SmallTopAppBar(title: @Composable () -> Unit) {
-    TODO("Not yet implemented")
+fun DashboardPreview() {
+    ParkSmartTheme {
+        val fakeSessions = listOf(
+            ParkingSession(id = "1", plateNumber = "GK-123-LU", vehicleType = VehicleType.VOITURE, entryTime = System.currentTimeMillis() - 3600000),
+            ParkingSession(id = "2", plateNumber = "MOTO-77", vehicleType = VehicleType.MOTO, entryTime = System.currentTimeMillis() - 7200000)
+        )
+
+        Scaffold(
+            topBar = {
+                // Remplacement de ta fonction TODO par un vrai composant Material 3
+                TopAppBar(title = { Text("ParkSmart - Aperçu") })
+            }
+        ) { padding ->
+            LazyColumn(modifier = Modifier.padding(padding)) {
+                items(fakeSessions) { session ->
+                    VehicleCard(
+                        session = session,
+                        currentAmount = 5.0,
+                        onExitClick = {},
+                        formatTime = { time -> time.toString() }
+                    )
+                }
+            }
+        }
+    }
 }
