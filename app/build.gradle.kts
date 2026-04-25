@@ -1,15 +1,12 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
     namespace = "com.example.parck"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.parck"
@@ -50,19 +47,20 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     // --- Interface & Design ---
     implementation("androidx.compose.material3:material3")
-    implementation("io.coil-kt:coil-compose:2.5.0") // Pour l'affichage des photos [cite: 29]
+    implementation("io.coil-kt:coil-compose:2.5.0") // Pour l'affichage des photos
 
     // --- Backend (Supabase) ---
     implementation("io.github.jan-tennert.supabase:postgrest-kt:2.0.0") // Pour la table parking_sessions
     implementation("io.github.jan-tennert.supabase:storage-kt:2.0.0")   // Pour l'upload des images
+    implementation(libs.ktor.client.android) // Moteur HTTP nécessaire pour Supabase
 
     // --- Architecture & Background ---
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0") // MVVM [cite: 26]
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0") // MVVM
     implementation("androidx.work:work-runtime-ktx:2.9.0")
     implementation(libs.androidx.compose.runtime)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.compose.material3.common)
-    implementation(libs.androidx.navigation.compose) // Pour les alertes 24h [cite: 31]
+    implementation(libs.androidx.navigation.compose) // Pour les alertes 24h
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
