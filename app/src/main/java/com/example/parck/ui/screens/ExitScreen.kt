@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
+import androidx.compose.ui.res.painterResource
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -34,6 +36,7 @@ import com.example.parck.ui.theme.BitumenGrey
 import com.example.parck.ui.theme.BlueElectric
 import com.example.parck.ui.theme.PlateTypography
 import com.example.parck.ui.viewmodel.ParkingViewModel
+import com.example.parck.utils.toDurationLabel
 import java.time.Duration
 import java.time.Instant
 
@@ -75,7 +78,7 @@ fun ExitScreen(
             Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(text = session.plateNumber, style = PlateTypography, color = BlueElectric)
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(text = "Temps passé : ${duration.toHours()}h ${duration.toMinutes() % 60}min", color = Color.LightGray)
+                Text(text = "Temps passé : ${session.entryTime.toDurationLabel()}", color = Color.LightGray)
             }
         }
 
@@ -103,13 +106,18 @@ fun ExitScreen(
             shape = MaterialTheme.shapes.medium
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.CheckCircle, contentDescription = null, tint = BitumenDark)
+                Icon(
+                    painter = painterResource(id = android.R.drawable.checkbox_on_background),
+                    contentDescription = null,
+                    tint = BitumenDark,
+                    modifier = Modifier.size(24.dp)
+                )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("ENCAISSER ET LIBÉRER", color = BitumenDark, fontWeight = FontWeight.Bold)
             }
         }
 
-        TextButton(onClick = { /* Annuler et retourner au dashboard */ }) {
+        TextButton(onClick = onExitConfirmed) {
             Text("ANNULER", color = Color.Red)
         }
     }
