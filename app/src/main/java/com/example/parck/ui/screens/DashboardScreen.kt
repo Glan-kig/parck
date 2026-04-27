@@ -40,7 +40,7 @@ fun DashboardScreen(
     onNavigateToExit: (ParkingSession) -> Unit
 ) {
     // On observe la liste des sessions
-    val sessions by viewModel.uiState.collectAsState()
+    val sessions by viewModel.activeSessions.collectAsState()
 
     Scaffold(
         topBar = {
