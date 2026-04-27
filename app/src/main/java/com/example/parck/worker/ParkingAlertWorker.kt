@@ -39,6 +39,7 @@ class ParkingAlertWorker(
             }
             Result.success()
         } catch (e: Exception) {
+            e.printStackTrace()
             Result.retry()
         }
     }
