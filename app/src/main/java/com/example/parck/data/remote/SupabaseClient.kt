@@ -2,7 +2,9 @@ package com.example.parck.data.remote
 
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
+import io.github.jan.supabase.serializer.KotlinXSerializer
 import io.github.jan.supabase.storage.Storage
+import kotlinx.serialization.json.Json
 
 object SupabaseConfig {
     val client = createSupabaseClient(
@@ -11,5 +13,10 @@ object SupabaseConfig {
     ) {
         install(Postgrest) // Pour la base de données PostgreSQL
         install(Storage)   // Pour le Bucket d'images
+
+        KotlinXSerializer(Json {
+            ignoreUnknownKeys = true // <--- C'est cette ligne magique qui va tout débloquer
+            coerceInputValues = true
+        })
     }
 }
