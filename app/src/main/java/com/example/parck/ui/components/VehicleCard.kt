@@ -1,23 +1,30 @@
 package com.example.parck.ui.components
 
+import android.R
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.ui.res.painterResource
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -28,15 +35,19 @@ import com.example.parck.ui.theme.PlateTypography
 import com.example.parck.utils.toCurrencyString
 import com.example.parck.utils.toFormattedTime
 
+
 @Composable
 fun VehicleCard(
     session: ParkingSession,
-    currentAmount: Double, // Montant calculé passé par le ViewModel
+    currentAmount: Double,
     onExitClick: () -> Unit,
-    formatTime: (Long) -> Unit
+    formatTime: (Long) -> Unit,
+    onDeleteConfirm: () -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth().padding(8.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
         shape = MaterialTheme.shapes.large, // Coins coupés définis à l'étape 5
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
@@ -45,11 +56,15 @@ fun VehicleCard(
             AsyncImage(
                 model = session.photoUrl,
                 contentDescription = "Photo du véhicule",
-                modifier = Modifier.size(90.dp).clip(MaterialTheme.shapes.medium),
+                modifier = Modifier
+                    .size(90.dp)
+                    .clip(MaterialTheme.shapes.medium),
                 contentScale = ContentScale.Crop
             )
 
-            Column(modifier = Modifier.weight(1f).padding(start = 16.dp)) {
+            Column(modifier = Modifier
+                .weight(1f)
+                .padding(start = 16.dp)) {
                 // Plaque d'immatriculation (Style Monospace)
                 Text(
                     text = session.plateNumber,
@@ -76,6 +91,34 @@ fun VehicleCard(
                     modifier = Modifier.size(28.dp)
                 )
             }
+        }
+        var showDeleteDialog by remember { mutableStateOf(false) }
+        if (showDeleteDialog) {
+            AlertDialog(
+                onDismissRequest = { showDeleteDialog = false },
+                title = { Text("Annuler l'entrée ?") },
+                text = { Text("Voulez-vous vraiment supprimer cette session ? Cette action est irréversible.") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        onDeleteConfirm()
+                        showDeleteDialog = false
+                    }) {
+                        Text("Supprimer", color = Color.Red)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDeleteDialog = false }) {
+                        Text("Annuler")
+                    }
+                }
+            )
+        }
+        IconButton(onClick = { showDeleteDialog = true }) {
+            Icon(
+                painterResource(R.drawable.ic_delete),
+                contentDescription = "Supprimer",
+                tint = Color.Gray
+            )
         }
     }
 }

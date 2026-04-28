@@ -14,7 +14,8 @@ data class ParkingDto(
     @SerialName("entry_time") val entryTime: Long,
     @SerialName("exit_time") val exitTime: Long? = null,
     @SerialName("total_amount") val totalAmount: Double = 0.0,
-    @SerialName("is_paid") val isPaid: Boolean = false
+    @SerialName("is_paid") val isPaid: Boolean = false,
+    @SerialName("created_at") val createdAt: String? = null
 )
 
 // Extension pour convertir le DTO vers ton modèle métier ParkingSession

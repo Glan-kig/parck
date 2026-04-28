@@ -8,14 +8,15 @@ import kotlinx.serialization.json.Json
 
 object SupabaseConfig {
     val client = createSupabaseClient(
-        supabaseUrl = "https://eldpaphasnszfjhpvxqw.supabase.co", // À récupérer dans tes paramètres Supabase
+        supabaseUrl = "https://eldpaphasnszfjhpvxqw.supabase.co",
         supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZHBhcGhhc25zemZqaHB2eHF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3OTc4MjYsImV4cCI6MjA5MjM3MzgyNn0.lv6VmRBFvAKyPWf7kdqGpNhkEqVCUq2GVxjclKr9VyU"
     ) {
-        install(Postgrest) // Pour la base de données PostgreSQL
-        install(Storage)   // Pour le Bucket d'images
+        install(Postgrest)
+        install(Storage)
 
-        KotlinXSerializer(Json {
-            ignoreUnknownKeys = true // <--- C'est cette ligne magique qui va tout débloquer
+        // On assigne correctement le serializer
+        defaultSerializer = KotlinXSerializer(Json {
+            ignoreUnknownKeys = true
             coerceInputValues = true
         })
     }

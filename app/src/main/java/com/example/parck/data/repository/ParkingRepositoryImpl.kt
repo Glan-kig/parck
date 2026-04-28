@@ -28,6 +28,7 @@ class ParkingRepositoryImpl : ParkingRepository {
             // On convertit chaque DTO en ParkingSession grâce à l'extension .toDomain()
             response.map { it.toDomain() }
         } catch (e: Exception) {
+            e.printStackTrace()
             emptyList()
         }
     }
@@ -41,10 +42,9 @@ class ParkingRepositoryImpl : ParkingRepository {
 
             // 2. Récupération de l'URL publique pour Coil [cite: 29]
             val photoUrl = bucket.publicUrl(fileName)
-            session.copy(photoUrl = photoUrl)
 
             // On convertit notre session Kotlin en DTO JSON-friendly
-            val dto = session.toDto()
+            val dto = session.copy(photoUrl = photoUrl).toDto()
 
             SupabaseConfig.client.from("parking_sessions").insert(dto)
             Result.success(Unit)
@@ -53,15 +53,15 @@ class ParkingRepositoryImpl : ParkingRepository {
         }
     }
 
+    // Dans ParkingRepositoryImpl.kt
     @RequiresApi(Build.VERSION_CODES.O)
-    override suspend fun registerExit(sessionId: String, amount: Double): Result<Unit> {
+    override suspend fun registerExit(sessionId: String, finalAmount: Double): Result<Unit> {
         return try {
-            SupabaseConfig.client.from("parking_sessions").update(
+            client.from("parking_sessions").update(
                 {
-                    // On utilise les noms définis dans le DTO pour être sûr
-                    set("total_amount", amount)
+                    set("total_amount", finalAmount)
                     set("is_paid", true)
-                    set("exit_time", Instant.now().toString())
+                    set("exit_time", System.currentTimeMillis()) // Utiliser un Long comme entry_time
                 }
             ) {
                 filter { eq("id", sessionId) }
@@ -72,9 +72,17 @@ class ParkingRepositoryImpl : ParkingRepository {
         }
     }
 
+
     override suspend fun deleteSession(sessionId: String): Result<Unit> = runCatching {
-        client.postgrest["parking_sessions"].delete {
-            filter { eq("id", sessionId) }
+        return try {
+            // Supprime la session où l'id correspond
+            client.from("parking_sessions")
+                .delete {
+                    filter { eq("id", sessionId) }
+                }
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 }
