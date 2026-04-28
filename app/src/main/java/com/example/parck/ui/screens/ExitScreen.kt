@@ -3,38 +3,22 @@ package com.example.parck.ui.screens
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Button
-import androidx.compose.ui.res.painterResource
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.Icon
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource // Import important
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.parck.data.model.ParkingSession
-import com.example.parck.ui.theme.AccessGreen
-import com.example.parck.ui.theme.BitumenDark
-import com.example.parck.ui.theme.BitumenGrey
-import com.example.parck.ui.theme.BlueElectric
-import com.example.parck.ui.theme.PlateTypography
+import com.example.parck.ui.theme.*
 import com.example.parck.ui.viewmodel.ParkingViewModel
 import com.example.parck.utils.toDurationLabel
 import java.time.Duration
@@ -47,78 +31,150 @@ fun ExitScreen(
     viewModel: ParkingViewModel,
     onExitConfirmed: () -> Unit
 ) {
-    // On calcule le montant final au moment de l'ouverture de l'écran
     val finalAmount = remember { viewModel.calculateCurrentFees(session) }
-    val duration = remember {
-        Duration.between(Instant.ofEpochMilli(session.entryTime), Instant.now())
-    }
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp)
-            .background(BitumenDark),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = "Validation de Sortie",
-            style = MaterialTheme.typography.headlineMedium,
-            color = Color.White
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        // Rappel du véhicule
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = MaterialTheme.shapes.large,
-            colors = CardDefaults.cardColors(containerColor = BitumenGrey)
-        ) {
-            Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(text = session.plateNumber, style = PlateTypography, color = BlueElectric)
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(text = "Temps passé : ${session.entryTime.toDurationLabel()}", color = Color.LightGray)
-            }
-        }
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        // MONTANT À PAYER (Mise en évidence)
-        Text(text = "TOTAL À PERCEVOIR", style = MaterialTheme.typography.labelLarge, color = Color.Gray)
-        Text(
-            text = "${String.format("%.2f", finalAmount)} €",
-            style = MaterialTheme.typography.displayMedium,
-            fontWeight = FontWeight.Black,
-            color = AccessGreen
-        )
-
-        Spacer(modifier = Modifier.height(48.dp))
-
-        // Bouton de confirmation finale
-        Button(
-            onClick = {
-                viewModel.endVehicleSession(session.id!!, finalAmount)
-                onExitConfirmed()
-            },
-            modifier = Modifier.fillMaxWidth().height(64.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = AccessGreen),
-            shape = MaterialTheme.shapes.medium
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    painter = painterResource(id = android.R.drawable.checkbox_on_background),
-                    contentDescription = null,
-                    tint = BitumenDark,
-                    modifier = Modifier.size(24.dp)
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(BitumenDark, Color(0xFF1A1C1E))
                 )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("ENCAISSER ET LIBÉRER", color = BitumenDark, fontWeight = FontWeight.Bold)
-            }
-        }
+            )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 24.dp, vertical = 40.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Header
+            Text(
+                text = "Validation de Sortie",
+                style = MaterialTheme.typography.headlineSmall,
+                color = Color.White,
+                fontWeight = FontWeight.Light,
+                letterSpacing = 1.5.sp
+            )
 
-        TextButton(onClick = onExitConfirmed) {
-            Text("ANNULER", color = Color.Red)
+            Spacer(modifier = Modifier.weight(0.5f))
+
+            // Carte du Véhicule
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(28.dp),
+                colors = CardDefaults.cardColors(containerColor = BitumenGrey.copy(alpha = 0.5f)),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    // Remplacement par painterResource (Utilise une icône système Android ou la tienne)
+                    Icon(
+                        painter = painterResource(id = android.R.drawable.ic_menu_directions),
+                        contentDescription = null,
+                        tint = BlueElectric,
+                        modifier = Modifier.size(40.dp)
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = session.plateNumber.uppercase(),
+                        style = PlateTypography.copy(fontSize = 32.sp),
+                        color = Color.White,
+                        textAlign = TextAlign.Center
+                    )
+
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 16.dp),
+                        thickness = 1.dp,
+                        color = Color.White.copy(alpha = 0.1f)
+                    )
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            painter = painterResource(id = android.R.drawable.ic_menu_recent_history),
+                            contentDescription = null,
+                            tint = Color.LightGray,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Durée : ${session.entryTime.toDurationLabel()}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.LightGray
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(40.dp))
+
+            // Zone du Montant
+            Surface(
+                color = AccessGreen.copy(alpha = 0.1f),
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier.padding(bottom = 8.dp)
+            ) {
+                Text(
+                    text = "TOTAL À PERCEVOIR",
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = AccessGreen,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Text(
+                text = "${String.format("%.2f", finalAmount)} €",
+                style = MaterialTheme.typography.displayLarge,
+                fontWeight = FontWeight.ExtraBold,
+                color = Color.White
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            // Boutons d'action
+            Button(
+                onClick = {
+                    viewModel.endVehicleSession(session.id!!, finalAmount)
+                    onExitConfirmed()
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(72.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = AccessGreen),
+                shape = RoundedCornerShape(20.dp),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        painter = painterResource(id = android.R.drawable.checkbox_on_background),
+                        contentDescription = null,
+                        tint = BitumenDark
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        "ENCAISSER ET LIBÉRER",
+                        color = BitumenDark,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Black
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            TextButton(
+                onClick = onExitConfirmed,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    "ANNULER",
+                    color = Color.White.copy(alpha = 0.6f),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
         }
     }
 }
