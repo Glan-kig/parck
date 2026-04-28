@@ -41,7 +41,6 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             ParkSmartTheme {
-                // Appel de la fonction principale
                 ParkSmartApp(viewModel)
             }
         }
@@ -120,7 +119,6 @@ fun DashboardPreview() {
 
         Scaffold(
             topBar = {
-                // Remplacement de ta fonction TODO par un vrai composant Material 3
                 TopAppBar(title = { Text("ParkSmart - Aperçu") })
             }
         ) { padding ->
@@ -130,7 +128,8 @@ fun DashboardPreview() {
                         session = session,
                         currentAmount = 5.0,
                         onExitClick = {},
-                        formatTime = { time -> time.toString() }
+                        formatTime = { time -> time.toString() },
+                        onDeleteConfirm = {  }
                     )
                 }
             }
