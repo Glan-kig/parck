@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.parck.data.domain.PriceCalculator
 import com.example.parck.data.model.ParkingSession
 import com.example.parck.data.model.VehicleType
 import kotlinx.coroutines.delay
@@ -14,12 +15,23 @@ import kotlinx.coroutines.launch
 import java.time.Duration
 import java.time.Instant
 import com.example.parck.data.repository.ParkingRepository
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 
 class ParkingViewModel(private val repository: ParkingRepository) : ViewModel() {
 
     private val _uiState = MutableStateFlow<List<ParkingSession>>(emptyList())
     val uiState: StateFlow<List<ParkingSession>> = _uiState.asStateFlow()
+
+    // Cette liste se mettra à jour automatiquement dès que _uiState change
+    val activeSessions = _uiState.map { sessions ->
+        sessions.filter { it.exitTime == null && !it.isPaid }
+    }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing = _isRefreshing.asStateFlow()
 
     init {
         loadSessions()
@@ -28,22 +40,24 @@ class ParkingViewModel(private val repository: ParkingRepository) : ViewModel() 
 
     fun loadSessions() {
         viewModelScope.launch {
+            _isRefreshing.value = true
             try {
                 val sessions = repository.getActiveSessions()
-                _uiState.emit(sessions) // Utilisation de emit pour garantir la mise à jour
+                _uiState.emit(sessions)
             } catch (e: Exception) {
                 e.printStackTrace()
+            } finally {
+                _isRefreshing.value = false
             }
         }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun calculateCurrentFees(session: ParkingSession): Double {
-        val entryInstant = Instant.ofEpochMilli(session.entryTime)
-        val now = Instant.now()
-        val duration = Duration.between(entryInstant, now)
-        val hours = duration.toMinutes() / 60.0
-        return hours * session.vehicleType.hourlyRate
+        return PriceCalculator.calculateFees(
+            session.entryTime,
+            session.vehicleType.hourlyRate
+        )
     }
 
     private fun startRealTimeUpdates() {
@@ -68,11 +82,36 @@ class ParkingViewModel(private val repository: ParkingRepository) : ViewModel() 
         }
     }
 
+    // Dans ParkingViewModel.kt
     fun endVehicleSession(sessionId: String, finalAmount: Double) {
         viewModelScope.launch {
-            val result = repository.registerExit(sessionId, finalAmount)
+            try {
+                val result = repository.registerExit(sessionId, finalAmount)
+                if (result.isSuccess) {
+                    // On met à jour l'UI localement immédiatement
+                    _uiState.update { currentList ->
+                        currentList.map {
+                            if (it.id == sessionId) it.copy(isPaid = true, exitTime = System.currentTimeMillis())
+                            else it
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun deleteParkingSession(sessionId: String) {
+        viewModelScope.launch {
+            val result = repository.deleteSession(sessionId)
             if (result.isSuccess) {
-                loadSessions()
+                // On retire la session de la liste locale pour que l'UI disparaisse de suite
+                _uiState.update { currentList ->
+                    currentList.filterNot { it.id == sessionId }
+                }
+            } else {
+                // Optionnel : tu peux ajouter un StateFlow pour afficher une erreur (Toast)
             }
         }
     }
