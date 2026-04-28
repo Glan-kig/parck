@@ -60,9 +60,19 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.5.0") // Pour l'affichage des photos
 
     // --- Backend (Supabase) ---
+    val ktor_version = "2.3.12"
+
     implementation("io.github.jan-tennert.supabase:postgrest-kt:2.0.0") // Pour la table parking_sessions
     implementation("io.github.jan-tennert.supabase:storage-kt:2.0.0")   // Pour l'upload des images
     implementation(libs.ktor.client.android) // Moteur HTTP nécessaire pour Supabase
+    implementation("io.ktor:ktor-client-plugins:2.3.11")
+    implementation("io.ktor:ktor-client-android:2.3.11")
+    implementation("io.ktor:ktor-client-content-negotiation:2.3.11")
+    implementation("io.ktor:ktor-client-content-negotiation:${ktor_version}")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:${ktor_version}")
+    implementation("io.ktor:ktor-client-plugins:${ktor_version}")
+    implementation("io.ktor:ktor-client-core:${ktor_version}")
+    implementation("io.ktor:ktor-client-android:${ktor_version}")
 
     // --- Architecture & Background ---
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0") // MVVM
