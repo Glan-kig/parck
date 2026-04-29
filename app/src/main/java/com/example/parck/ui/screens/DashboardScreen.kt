@@ -39,24 +39,32 @@ fun DashboardScreen(
     val sessions by viewModel.activeSessions.collectAsState()
     val refreshing by viewModel.isRefreshing.collectAsState()
 
+    // Palette Premium
+    val surfaceGradient = Brush.verticalGradient(
+        colors = listOf(BitumenDark, Color(0xFF0F1113))
+    )
+
     Scaffold(
-        containerColor = Color.Transparent, // On met transparent pour voir le dégradé du fond
+        containerColor = BitumenDark,
         topBar = {
+            // Utilisation d'une barre avec un effet de profondeur
             CenterAlignedTopAppBar(
                 title = {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             "PARCK",
-                            style = MaterialTheme.typography.titleLarge.copy(
-                                fontWeight = FontWeight.Black,
-                                letterSpacing = 4.sp
+                            style = MaterialTheme.typography.headlineSmall.copy(
+                                fontWeight = FontWeight.ExtraBold,
+                                letterSpacing = 6.sp,
+                                fontSize = 22.sp
                             ),
                             color = Color.White
                         )
-                        Text(
-                            "GESTION TEMPS RÉEL",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = BlueElectric
+                        Box(
+                            modifier = Modifier
+                                .width(40.dp)
+                                .height(2.dp)
+                                .background(BlueElectric, CircleShape)
                         )
                     }
                 },
@@ -64,119 +72,103 @@ fun DashboardScreen(
                     IconButton(
                         onClick = { viewModel.loadSessions() },
                         modifier = Modifier
-                            .padding(end = 8.dp)
-                            .background(Color.White.copy(alpha = 0.05f), CircleShape)
+                            .padding(end = 12.dp)
+                            .size(40.dp)
+                            .background(Color.White.copy(alpha = 0.08f), CircleShape)
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_refresh),
-                            contentDescription = "Rafraîchir",
-                            tint = if (refreshing) Color.Gray else Color.White
+                            contentDescription = "Refresh",
+                            tint = if (refreshing) BlueElectric else Color.White,
+                            modifier = Modifier.size(20.dp)
                         )
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = BitumenDark.copy(alpha = 0.9f)
+                    containerColor = Color.Transparent // On laisse le fond s'occuper du style
                 )
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
+            // Un FAB étendu avec un dégradé électrique
+            ExtendedFloatingActionButton(
                 onClick = onNavigateToEntry,
                 containerColor = BlueElectric,
-                shape = RoundedCornerShape(20.dp),
-                elevation = FloatingActionButtonDefaults.elevation(8.dp)
+                contentColor = BitumenDark,
+                shape = RoundedCornerShape(24.dp),
+                elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 12.dp),
+                modifier = Modifier.padding(bottom = 16.dp)
             ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_add),
-                        contentDescription = null,
-                        tint = BitumenDark
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("ENTRÉE", color = BitumenDark, fontWeight = FontWeight.Bold)
-                }
+                Icon(painter = painterResource(id = R.drawable.ic_add), contentDescription = null)
+                Spacer(modifier = Modifier.width(12.dp))
+                Text("NOUVELLE ENTRÉE", fontWeight = FontWeight.ExtraBold, letterSpacing = 1.sp)
             }
         }
     ) { padding ->
-        // Fond dégradé identique aux autres écrans
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(BitumenDark, Color(0xFF121416))
-                    )
-                )
+                .background(surfaceGradient)
                 .padding(padding)
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
 
-                // Barre d'état / Statistiques
+                // Section "Statut" stylisée
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
+                        .padding(horizontal = 20.dp, vertical = 12.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.Bottom
                 ) {
-                    Surface(
-                        color = Color.White.copy(alpha = 0.05f),
-                        shape = RoundedCornerShape(50)
-                    ) {
+                    Column {
                         Text(
-                            text = "${sessions.size} VÉHICULE${if (sessions.size > 1) "S" else ""} ACTIF(S)",
-                            color = Color.LightGray,
+                            text = "ÉTAT DU PARKING",
                             style = MaterialTheme.typography.labelMedium,
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                            color = BlueElectric,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = if (sessions.isEmpty()) "Libre" else "${sessions.size} véhicules actifs",
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = Color.White,
+                            fontWeight = FontWeight.Black
                         )
                     }
 
                     if (refreshing) {
                         CircularProgressIndicator(
-                            modifier = Modifier.size(20.dp),
-                            strokeWidth = 2.dp,
+                            modifier = Modifier.size(24.dp).padding(bottom = 4.dp),
+                            strokeWidth = 3.dp,
                             color = BlueElectric
                         )
                     }
                 }
 
+                Spacer(modifier = Modifier.height(8.dp))
+
                 if (sessions.isEmpty() && !refreshing) {
-                    // État vide plus accueillant
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            painter = painterResource(id = android.R.drawable.ic_menu_info_details),
-                            contentDescription = null,
-                            tint = Color.DarkGray,
-                            modifier = Modifier.size(64.dp)
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            "Le parking est vide",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = Color.Gray
-                        )
-                    }
+                    EmptyParkingView()
                 } else {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(bottom = 88.dp, start = 16.dp, end = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                        contentPadding = PaddingValues(
+                            bottom = 100.dp, // Espace pour le FAB
+                            start = 20.dp,
+                            end = 20.dp,
+                            top = 12.dp
+                        ),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         items(sessions, key = { it.id ?: it.entryTime }) { session ->
+                            // Ici, assure-toi que VehicleCard utilise un design Glassmorphic (voir ci-dessous)
                             VehicleCard(
                                 session = session,
                                 currentAmount = viewModel.calculateCurrentFees(session),
                                 onExitClick = { onNavigateToExit(session) },
-                                formatTime = { time ->
+                                /*formatTime = { time ->
                                     SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(time))
-                                },
+                                },*/
                                 onDeleteConfirm = { viewModel.deleteParkingSession(session.id ?: "") }
                             )
                         }
@@ -184,5 +176,34 @@ fun DashboardScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun EmptyParkingView() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Surface(
+            modifier = Modifier.size(100.dp),
+            color = Color.White.copy(alpha = 0.03f),
+            shape = CircleShape
+        ) {
+            Icon(
+                painter = painterResource(id = android.R.drawable.ic_menu_info_details),
+                contentDescription = null,
+                tint = Color.DarkGray,
+                modifier = Modifier.padding(24.dp)
+            )
+        }
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            "AUCUNE ACTIVITÉ",
+            style = MaterialTheme.typography.titleSmall,
+            color = Color.Gray,
+            letterSpacing = 2.sp
+        )
     }
 }
