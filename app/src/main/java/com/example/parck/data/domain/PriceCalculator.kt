@@ -17,10 +17,8 @@ object PriceCalculator {
     fun calculateFees(entryTime: Long, hourlyRate: Double): Double {
         val entryInstant = Instant.ofEpochMilli(entryTime)
         val now = Instant.now()
-
         // Calcul de la durée réelle
         val duration = Duration.between(entryInstant, now)
-
         // On convertit en heures (ex: 90 min = 1.5h)
         // On utilise maxOf(0.1, ...) pour s'assurer qu'on facture un minimum même si le séjour est très court
         val hours = maxOf(0.0, duration.toMinutes() / 60.0)
