@@ -55,6 +55,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.runtime)
     implementation(libs.androidx.navigation.compose)
+    implementation("org.slf4j:slf4j-android:1.7.36")
 
     // --- Interface & Design ---
     implementation("io.coil-kt:coil-compose:2.5.0") // Pour l'affichage des photos
