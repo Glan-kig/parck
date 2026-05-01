@@ -10,10 +10,10 @@ import java.time.Instant
 data class ParkingSession(
     val id: String? = null,
     val plateNumber: String,
-    val vehicleType: VehicleType, // Vérifie que VehicleType est aussi @Parcelize !
+    val vehicleType: VehicleType,
     val photoUrl: String? = null,
     val entryTime: Long = Instant.now().toEpochMilli(),
     val exitTime: Long? = null,
     val totalAmount: Double = 0.0,
     val isPaid: Boolean = false
-) : Parcelable // Implémente l'interface
+) : Parcelable
